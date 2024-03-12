@@ -6,10 +6,12 @@ import {
   Shape, 
   Line, 
   Text, 
-  Circle
+  Circle,
+  Image
 } from 'react-konva';
+import PropTypes from 'prop-types';
 
-const CanvasShape = () => {
+const CanvasShape = ({ backgroundImage }) => {
   const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
@@ -95,18 +97,38 @@ const CanvasShape = () => {
         context.fillStrokeShape(shape); // This method fills and strokes the shape
       }}
       fill="#8e70b5" // Set fill color
+      opacity={0.6} // Set opacity
     />
   );
   
   return (
     <div>
+      <select
+          value={tool}
+          onChange={(e) => {
+            setTool(e.target.value);
+          }}
+        >
+          <option value="pen">Pen</option>
+          <option value="brush">Brush</option>
+          <option value="eraser">Eraser</option>
+      </select>
       <Stage 
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={300}
+        height={300}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
       >
+        <Layer>
+          {backgroundImage && (
+            <Image
+              image={backgroundImage}
+              width={window.innerWidth}
+              height={window.innerHeight}
+            />
+          )}
+        </Layer>
         <Layer>
           {isDrawing.current && lines.map((line, i) => (
               <Line
@@ -120,6 +142,8 @@ const CanvasShape = () => {
                 globalCompositeOperation={
                   line.tool === 'eraser' ? 'destination-out' : 'source-over'
                 }
+                opacity={0.6}
+                
               />
           ))}
           {isDrawing.current &&
@@ -142,17 +166,16 @@ const CanvasShape = () => {
           {!isDrawing.current && lines.map((line, i) => renderShape(line.points, i))}
         </Layer>
       </Stage>
-      <select
-        value={tool}
-        onChange={(e) => {
-          setTool(e.target.value);
-        }}
-      >
-        <option value="pen">Pen</option>
-        <option value="eraser">Eraser</option>
-      </select>
     </div>
   )
 }
+
+CanvasShape.propTypes = {
+  backgroundImage: PropTypes.object
+};
+
+CanvasShape.defaultProps = {
+  backgroundImage: null
+};
 
 export default CanvasShape;
