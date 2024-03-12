@@ -1,30 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { CanvasShape } from '@components';
-import useImage from 'use-image';
+import { useZipUpload } from '@hooks';
 
 const App = () => {
+  const { imageSrc, handleZipUpload } = useZipUpload();
 
-  const [backgroundUrl, setBackgroundUrl] = useState(null);
-  const [backgroundImage] = useImage(backgroundUrl);
+  const image = new Image();
 
-  const handleUpload = event => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // Set the background URL to the result of the FileReader
-        setBackgroundUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
+  useEffect(() => {
+    image.src = imageSrc;
+  }, [imageSrc]);
 
   return (
     <div className="App">
       <header className="App-header">
-        <input type="file" onChange={handleUpload} accept="image/*" />
-        <CanvasShape backgroundImage={backgroundImage} />
+        <input type="file" onChange={handleZipUpload} accept=".zip" />
+        {imageSrc && <CanvasShape backgroundImage={image} />}
       </header>
     </div>
   );

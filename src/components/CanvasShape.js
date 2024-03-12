@@ -114,8 +114,8 @@ const CanvasShape = ({ backgroundImage }) => {
           <option value="eraser">Eraser</option>
       </select>
       <Stage 
-        width={300}
-        height={300}
+        width={1000}
+        height={1000}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
