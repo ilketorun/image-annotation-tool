@@ -5,18 +5,24 @@ import {
   Layer, 
   Shape, 
   Line, 
-  Text 
+  Text, 
+  Circle
 } from 'react-konva';
 
 const CanvasShape = () => {
   const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
+  const isMouseWithinStartingCircle = useRef(false);
+  const startingCircleRadius = 8;
+  const startingPoint = useRef({ x:-1, y: -1 });
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
     setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    startingPoint.x = pos.x;
+    startingPoint.y = pos.y;
   };
 
   const handleMouseMove = (e) => {
@@ -24,18 +30,26 @@ const CanvasShape = () => {
     if (!isDrawing.current) {
       return;
     }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
+    const pos = e.target.getStage().getPointerPosition();
     let lastLine = lines[lines.length - 1];
     // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
+    lastLine.points = lastLine.points.concat([pos.x, pos.y]);
 
-    // replace last
     lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());   
+    setLines(lines.concat());  
+    
+    const distance = Math.sqrt(
+      Math.pow(pos.x - startingPoint.x, 2) + Math.pow(pos.y - startingPoint.y, 2)
+    );
+
+    if (distance <= startingCircleRadius) {
+      isMouseWithinStartingCircle.current = true;
+    } else {
+      isMouseWithinStartingCircle.current = false;
+    }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     if (!lines.length) return;
   
     const lastShape = lines[lines.length - 1];
@@ -46,6 +60,21 @@ const CanvasShape = () => {
     }
 
     isDrawing.current = false;
+
+    const pos = e.target.getStage().getPointerPosition();
+    const distance = Math.sqrt(
+      Math.pow(pos.x - startingPoint.x, 2) + Math.pow(pos.y - startingPoint.y, 2)
+    );
+
+    if (distance <= startingCircleRadius) {
+      isMouseWithinStartingCircle.current = true;
+    } else {
+      isMouseWithinStartingCircle.current = false;
+      setLines([{ tool, points: [] }])
+    }
+    
+    startingPoint.x = -1;
+    startingPoint.y = -1;
   };
 
   const renderShape = (points, index) => (
@@ -65,15 +94,10 @@ const CanvasShape = () => {
         context.closePath(); // Optional: Close the path if you want a closed shape
         context.fillStrokeShape(shape); // This method fills and strokes the shape
       }}
-      fill="#00D2FF" // Set fill color
-      stroke="black" // Set stroke color
-      strokeWidth={4} // Set stroke width
+      fill="#8e70b5" // Set fill color
     />
   );
   
-
-  
-
   return (
     <div>
       <Stage 
@@ -84,11 +108,11 @@ const CanvasShape = () => {
         onMouseup={handleMouseUp}
       >
         <Layer>
-          {lines.map((line, i) => (
+          {isDrawing.current && lines.map((line, i) => (
               <Line
                 key={i}
                 points={line.points}
-                stroke="#df4b26"
+                stroke="#8e70b5"
                 strokeWidth={5}
                 tension={0.5}
                 lineCap="round"
@@ -98,8 +122,24 @@ const CanvasShape = () => {
                 }
               />
           ))}
-          {/* {lines.map((line, i) => renderShape(line.points, i))} */}
-
+          {isDrawing.current &&
+              <>
+                <Circle 
+                  x={startingPoint.x} 
+                  y={startingPoint.y} 
+                  radius={isMouseWithinStartingCircle.current ? 8 : 5} 
+                  fill="#8e70b5" 
+                />
+                <Circle 
+                  x={startingPoint.x} 
+                  y={startingPoint.y} 
+                  radius={isMouseWithinStartingCircle.current ? 9 : 6} 
+                  stroke="black" 
+                  strokeWidth={3}
+                />
+              </>
+          }
+          {!isDrawing.current && lines.map((line, i) => renderShape(line.points, i))}
         </Layer>
       </Stage>
       <select
