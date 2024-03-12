@@ -1,11 +1,11 @@
 import React from "react";
-import { Canvas } from '@components';
+import { CanvasShape } from '@components';
 
 const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <Canvas />
+        <CanvasShape />
       </header>
     </div>
   );
