@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import { 
   Stage, 
   Layer, 
@@ -11,7 +11,8 @@ import {
 } from 'react-konva';
 import PropTypes from 'prop-types';
 
-const CanvasShape = ({ backgroundImage }) => {
+// eslint-disable-next-line react/display-name
+const CanvasShape = forwardRef(({ backgroundImage }, ref) => {
   const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
@@ -129,7 +130,7 @@ const CanvasShape = ({ backgroundImage }) => {
             />
           )}
         </Layer>
-        <Layer>
+        <Layer ref={ref}>
           {isDrawing.current && lines.map((line, i) => (
               <Line
                 key={i}
@@ -168,7 +169,7 @@ const CanvasShape = ({ backgroundImage }) => {
       </Stage>
     </div>
   )
-}
+});
 
 CanvasShape.propTypes = {
   backgroundImage: PropTypes.object
