@@ -9,10 +9,11 @@ import {
   Circle,
   Image
 } from 'react-konva';
+import { Select } from 'antd';
 import PropTypes from 'prop-types';
 
 // eslint-disable-next-line react/display-name
-const CanvasShape = forwardRef(({ backgroundImage }, ref) => {
+const Canvas = forwardRef(({ backgroundImage }, ref) => {
   const [tool, setTool] = useState('pen');
   const [lines, setLines] = useState([]);
   const isDrawing = useRef(false);
@@ -104,16 +105,15 @@ const CanvasShape = forwardRef(({ backgroundImage }, ref) => {
   
   return (
     <div>
-      <select
-          value={tool}
-          onChange={(e) => {
-            setTool(e.target.value);
-          }}
-        >
-          <option value="pen">Pen</option>
-          <option value="brush">Brush</option>
-          <option value="eraser">Eraser</option>
-      </select>
+      <Select
+        value={tool}
+        style={{ width: 120 }}
+        onChange={(value) => setTool(value)}
+      >
+        <Select.Option value="pen">Pen</Select.Option>
+        <Select.Option value="brush">Brush</Select.Option>
+        <Select.Option value="eraser">Eraser</Select.Option>
+      </Select>
       <Stage 
         width={1000}
         height={1000}
@@ -171,12 +171,12 @@ const CanvasShape = forwardRef(({ backgroundImage }, ref) => {
   )
 });
 
-CanvasShape.propTypes = {
+Canvas.propTypes = {
   backgroundImage: PropTypes.object
 };
 
-CanvasShape.defaultProps = {
+Canvas.defaultProps = {
   backgroundImage: null
 };
 
-export default CanvasShape;
+export default Canvas;

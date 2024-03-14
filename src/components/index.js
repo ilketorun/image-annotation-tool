@@ -1,4 +1,4 @@
 import Canvas from "./Canvas";
-import CanvasShape from "./CanvasShape";
+import ToolBox from "./ToolBox";
 
-export { Canvas, CanvasShape };
+export { Canvas, ToolBox };
