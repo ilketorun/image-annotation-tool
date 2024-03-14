@@ -6,11 +6,13 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "antd": "^5.15.2",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.10",
     "react-scripts": "5.0.1",
-    "use-image": "^1.1.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -42,6 +44,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.0",
     "react-app-rewire-alias": "^1.1.7",
-    "react-app-rewired": "^2.2.1"
+    "react-app-rewired": "^2.2.1",
+    "tree": "^0.1.3"
   }
 }
