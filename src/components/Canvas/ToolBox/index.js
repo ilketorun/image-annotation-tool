@@ -1,7 +1,5 @@
-/* eslint-disable no-unreachable */
-/* eslint-disable no-unused-vars */
-import React, { useContext, useEffect } from "react";
-import { Radio, Upload } from 'antd';
+import React, { useContext } from "react";
+import { Radio } from 'antd';
 import { PropTypes } from "prop-types";
 
 import { TOOLS } from "@constants";
@@ -30,7 +28,7 @@ const ToolBox = ({ importZip, exportZip }) => {
 
   return (
     <Radio.Group className={styles.container} onChange={onChange} value={tool}>
-      <Radio.Button className={styles.button} value={TOOLS.IMPORT}>
+      <Radio.Button className={styles.importButton} value={TOOLS.IMPORT}>
         <Import importZip={importZip} />
       </Radio.Button>
       <Radio.Button className={styles.button} value={TOOLS.EXPORT}>

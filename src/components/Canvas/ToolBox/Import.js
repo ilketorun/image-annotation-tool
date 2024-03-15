@@ -4,8 +4,6 @@ import { ImportOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import { PropTypes } from 'prop-types';
 
-import styles from './styles.module.css';
-
 const Import = ({ importZip }) => {
   return (
     <Upload
@@ -16,7 +14,14 @@ const Import = ({ importZip }) => {
       showUploadList={false}
       accept=".zip"
     >
-      <div className={styles.tool}>
+      <div 
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '73px',
+        }}
+      >
         Import
         <ImportOutlined />
       </div>

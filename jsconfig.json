@@ -7,7 +7,7 @@
       "@utils": ["utils"],
       "@constants": ["constants"],
       "@contexts": ["contexts"],
-      "@pages": ["pages"],
+      "@pages": ["pages"]
     }
   },
   "include": ["src"]

@@ -7,7 +7,7 @@ module.exports = function override(config) {
     '@utils': 'src/utils',
     '@constants': 'src/constants',
     '@contexts': 'src/contexts',
-    '@pages': 'src/pages',
+    '@pages': 'src/pages'
   })(config)
 
   return config;

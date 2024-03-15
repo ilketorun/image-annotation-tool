@@ -17,3 +17,10 @@
   flex-direction: row;
   justify-content: space-between;
 }
+
+.importButton {
+  border-radius: 0px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
