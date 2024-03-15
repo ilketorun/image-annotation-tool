@@ -1,25 +1,54 @@
 /* eslint-disable no-unused-vars */
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
   Stage, 
   Layer, 
   Shape, 
-  Line, 
-  Text, 
+  Line,  
   Circle,
-  Image
+  Image as KonvaImage
 } from 'react-konva';
-import { Select } from 'antd';
-import PropTypes from 'prop-types';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
-// eslint-disable-next-line react/display-name
-const Canvas = forwardRef(({ backgroundImage }, ref) => {
-  const [tool, setTool] = useState('pen');
+import { CanvasContext } from '@contexts';
+import { useImportZip } from '@hooks';
+import { dataURLtoBlob } from '@utils';
+import { TOOLS } from '@constants';
+
+import ToolBox from './ToolBox';
+
+import styles from './styles.module.css';
+
+const Canvas = () => {
+  const { tool } = useContext(CanvasContext);
+  const [image, setImage] = useState(new Image());
+  const { imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
-  const isDrawing = useRef(false);
   const isMouseWithinStartingCircle = useRef(false);
-  const startingCircleRadius = 8;
+  const isDrawing = useRef(false);
   const startingPoint = useRef({ x:-1, y: -1 });
+  const drawingLayer = useRef();
+  const startingCircleRadius = 8;
+
+  const exportZip = () => {
+    const zip = new JSZip();
+    const imgFolder = zip.folder("images");
+
+    const dataURL = drawingLayer.current.toDataURL({
+      pixelRatio: 1,
+      mimeType: "image/png",
+    },);
+
+    const maskBlob = dataURLtoBlob(dataURL);
+    imgFolder.file("mask.png", maskBlob, { binary: true });
+    imgFolder.file("original_image.png", imageBlob, { binary: true });
+
+    zip.generateAsync({ type: "blob" })
+    .then(function(content) {
+      saveAs(content, "images.zip");
+    });
+  };
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
@@ -57,7 +86,7 @@ const Canvas = forwardRef(({ backgroundImage }, ref) => {
     if (!lines.length) return;
   
     const lastShape = lines[lines.length - 1];
-    if (lastShape.tool === 'pen') {
+    if (tool === TOOLS.PEN) {
       const firstPoint = lastShape.points.slice(0, 2); // Get the first point
       lastShape.points = [...lastShape.points, ...firstPoint]; // Close the shape by adding the first point at the end
       setLines([...lines.slice(0, -1), lastShape]);
@@ -102,35 +131,30 @@ const Canvas = forwardRef(({ backgroundImage }, ref) => {
       opacity={0.6} // Set opacity
     />
   );
+
+  useEffect(() => {    
+    image.src = imageSrc;
+  }, [imageSrc, imageBlob, importZip]);
   
+  console.log(imageSrc, imageBlob, image)
   return (
-    <div>
-      <Select
-        value={tool}
-        style={{ width: 120 }}
-        onChange={(value) => setTool(value)}
-      >
-        <Select.Option value="pen">Pen</Select.Option>
-        <Select.Option value="brush">Brush</Select.Option>
-        <Select.Option value="eraser">Eraser</Select.Option>
-      </Select>
+    <div className={styles.container}>
+      <ToolBox importZip={importZip} exportZip={exportZip} />
       <Stage 
-        width={1000}
-        height={1000}
+        width={500}
+        height={500}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
       >
         <Layer>
-          {backgroundImage && (
-            <Image
-              image={backgroundImage}
-              width={window.innerWidth}
-              height={window.innerHeight}
-            />
-          )}
+          <KonvaImage
+            image={image}
+            width={500}
+            height={500}
+          />
         </Layer>
-        <Layer ref={ref}>
+        <Layer ref={drawingLayer}>
           {isDrawing.current && lines.map((line, i) => (
               <Line
                 key={i}
@@ -141,10 +165,9 @@ const Canvas = forwardRef(({ backgroundImage }, ref) => {
                 lineCap="round"
                 lineJoin="round"
                 globalCompositeOperation={
-                  line.tool === 'eraser' ? 'destination-out' : 'source-over'
+                  line.tool === TOOLS.ERASER ? 'destination-out' : 'source-over'
                 }
                 opacity={0.6}
-                
               />
           ))}
           {isDrawing.current &&
@@ -169,14 +192,6 @@ const Canvas = forwardRef(({ backgroundImage }, ref) => {
       </Stage>
     </div>
   )
-});
-
-Canvas.propTypes = {
-  backgroundImage: PropTypes.object
-};
-
-Canvas.defaultProps = {
-  backgroundImage: null
 };
 
 export default Canvas;

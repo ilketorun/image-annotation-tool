@@ -1,3 +1,3 @@
-import useZipUpload from './useZipUpload';
+import useImportZip from './useImportZip';
 
-export { useZipUpload };
+export { useImportZip };

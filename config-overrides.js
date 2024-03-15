@@ -5,8 +5,10 @@ module.exports = function override(config) {
     '@components': 'src/components',
     '@hooks': 'src/hooks',
     '@utils': 'src/utils',
-    '@constants': 'src/constants'
+    '@constants': 'src/constants',
+    '@contexts': 'src/contexts',
+    '@pages': 'src/pages',
   })(config)
 
-  return config
+  return config;
 }
