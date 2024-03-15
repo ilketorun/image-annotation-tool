@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import JSZip from 'jszip';
 
-const useZipUpload = () => {
+const useImportZip = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
 
-  const handleZipUpload = (event) => {
+  const importZip = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -36,7 +36,7 @@ const useZipUpload = () => {
       });
   };
 
-  return { imageSrc, imageBlob, handleZipUpload };
+  return { imageSrc, imageBlob, importZip };
 };
 
-export default useZipUpload;
+export default useImportZip;

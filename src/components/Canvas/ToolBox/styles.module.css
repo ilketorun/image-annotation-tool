@@ -1,0 +1,26 @@
+.container {
+  cursor:pointer;  
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: rgb(223, 241, 255);
+  padding: 8px;
+  width: 120px;
+}
+
+.button {
+  border-radius: 0px !important;
+}
+
+.tool {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.importButton {
+  border-radius: 0px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}

@@ -4,7 +4,10 @@
     "paths": {
       "@components": ["components"],
       "@hooks": ["hooks"],
-      "@utils": ["utils"]
+      "@utils": ["utils"],
+      "@constants": ["constants"],
+      "@contexts": ["contexts"],
+      "@pages": ["pages"]
     }
   },
   "include": ["src"]
