@@ -15,4 +15,16 @@ const dataURLtoBlob = (dataURL) => {
   return new Blob([ia], {type: mimeString});
 }
 
-export { dataURLtoBlob };
+const createBlackImageDataUrl = (width = 1, height = 1) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  
+  ctx.fillStyle = 'black'; // Set the fill color to black
+  ctx.fillRect(0, 0, width, height); // Fill the canvas with black
+  
+  return canvas.toDataURL(); // Convert the canvas to a data URL and return it
+};
+
+export { dataURLtoBlob, createBlackImageDataUrl };

@@ -13,7 +13,7 @@ import { saveAs } from 'file-saver';
 
 import { CanvasContext } from '@contexts';
 import { useImportZip } from '@hooks';
-import { dataURLtoBlob } from '@utils';
+import { createBlackImageDataUrl, dataURLtoBlob } from '@utils';
 import { TOOLS } from '@constants';
 
 import ToolBox from './ToolBox';
@@ -132,8 +132,12 @@ const Canvas = () => {
     />
   );
 
-  useEffect(() => {    
-    image.src = imageSrc;
+  useEffect(() => {   
+    if (!imageSrc) {
+      image.src = createBlackImageDataUrl(100, 100)
+    } else {
+      image.src = imageSrc;
+    }
   }, [imageSrc, imageBlob, importZip]);
   
   console.log(imageSrc, imageBlob, image)
@@ -147,13 +151,13 @@ const Canvas = () => {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
       >
-        <Layer>
+        {image && <Layer>
           <KonvaImage
             image={image}
             width={500}
             height={500}
           />
-        </Layer>
+        </Layer>}
         <Layer ref={drawingLayer}>
           {isDrawing.current && lines.map((line, i) => (
               <Line
