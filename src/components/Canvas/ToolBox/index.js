@@ -15,15 +15,11 @@ import Eraser from "./Eraser";
 
 import styles from './styles.module.css';
 
-const ToolBox = ({ importZip, exportZip }) => {
+const ToolBox = ({ importZip }) => {
   const { tool, setTool } = useContext(CanvasContext);
   
   const onChange = e => {
     setTool(e.target.value);
-
-    if (e.target.value === TOOLS.EXPORT) {
-      exportZip();
-    }
   }
 
   return (

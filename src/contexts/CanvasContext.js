@@ -5,7 +5,7 @@ const CanvasContext = createContext();
 
 // eslint-disable-next-line react/prop-types
 const CanvasProvider = ({ children }) => {
-  const [tool, setTool] = useState(TOOLS.PEN);
+  const [tool, setTool] = useState(TOOLS.IMPORT);
 
   const context = {
     tool, setTool,

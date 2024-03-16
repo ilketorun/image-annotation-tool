@@ -26,6 +26,8 @@ const Canvas = () => {
   const { imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [undoShapes, setUndoShapes] = useState([]);
+  const [redoShapes, setRedoShapes] = useState([]);
   const isMouseWithinStartingCircle = useRef(false);
   const isDrawing = useRef(false);
   const startingPoint = useRef({ x:-1, y: -1 });
@@ -53,6 +55,7 @@ const Canvas = () => {
 
   const handleMouseDown = (e) => {
     if(tool === TOOLS.PEN) {
+      setUndoShapes([...shapes]);
       isDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
       setLines([...lines, { tool, points: [pos.x, pos.y] }]);
@@ -111,6 +114,26 @@ const Canvas = () => {
     startingPoint.x = -1;
     startingPoint.y = -1;
   };
+
+  useEffect(() => {
+    switch (tool) {
+      case TOOLS.UNDO:
+        setRedoShapes([...shapes]);
+        setShapes([...undoShapes]);
+        break;
+
+      case TOOLS.REDO:
+        setUndoShapes([...shapes]);
+        setShapes([...redoShapes]);
+        break;
+        
+      case TOOLS.EXPORT:
+        exportZip();
+        break;
+      default:
+        break;
+    }
+  },[tool])
 
   const renderShape = (points, index) => (
     <Shape
