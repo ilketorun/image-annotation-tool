@@ -25,6 +25,7 @@ const Canvas = () => {
   const [image, setImage] = useState(new Image());
   const { imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
+  const [shapes, setShapes] = useState([]);
   const isMouseWithinStartingCircle = useRef(false);
   const isDrawing = useRef(false);
   const startingPoint = useRef({ x:-1, y: -1 });
@@ -51,18 +52,19 @@ const Canvas = () => {
   };
 
   const handleMouseDown = (e) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
-    startingPoint.x = pos.x;
-    startingPoint.y = pos.y;
+    if(tool === TOOLS.PEN) {
+      isDrawing.current = true;
+      const pos = e.target.getStage().getPointerPosition();
+      setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+      startingPoint.x = pos.x;
+      startingPoint.y = pos.y;
+    }
   };
 
   const handleMouseMove = (e) => {
     // no drawing - skipping
-    if (!isDrawing.current) {
-      return;
-    }
+    if (!isDrawing.current) return;
+
     const pos = e.target.getStage().getPointerPosition();
     let lastLine = lines[lines.length - 1];
     // add point
@@ -83,14 +85,7 @@ const Canvas = () => {
   };
 
   const handleMouseUp = (e) => {
-    if (!lines.length) return;
-  
-    const lastShape = lines[lines.length - 1];
-    if (tool === TOOLS.PEN) {
-      const firstPoint = lastShape.points.slice(0, 2); // Get the first point
-      lastShape.points = [...lastShape.points, ...firstPoint]; // Close the shape by adding the first point at the end
-      setLines([...lines.slice(0, -1), lastShape]);
-    }
+    if (!isDrawing.current || !lines.length) return;
 
     isDrawing.current = false;
 
@@ -101,9 +96,16 @@ const Canvas = () => {
 
     if (distance <= startingCircleRadius) {
       isMouseWithinStartingCircle.current = true;
+      const lastShape = lines[lines.length - 1];
+      if (tool === TOOLS.PEN) {
+        const firstPoint = lastShape.points.slice(0, 2); // Get the first point
+        lastShape.points = [...lastShape.points, ...firstPoint]; // Close the shape by adding the first point at the end
+        setLines([]);
+        setShapes([...shapes, ...lines.slice(0, -1), lastShape]);
+      }
     } else {
       isMouseWithinStartingCircle.current = false;
-      setLines([{ tool, points: [] }])
+      setLines([])
     }
     
     startingPoint.x = -1;
@@ -140,7 +142,6 @@ const Canvas = () => {
     }
   }, [imageSrc, imageBlob, importZip]);
   
-  console.log(imageSrc, imageBlob, image)
   return (
     <div className={styles.container}>
       <ToolBox importZip={importZip} exportZip={exportZip} />
@@ -191,7 +192,7 @@ const Canvas = () => {
                 />
               </>
           }
-          {!isDrawing.current && lines.map((line, i) => renderShape(line.points, i))}
+          {shapes.map((shape, i) => renderShape(shape.points, i))}
         </Layer>
       </Stage>
     </div>
