@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 const useImportZip = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
 
   const importZip = (event) => {
     const file = event.target.files[0];
@@ -22,6 +23,13 @@ const useImportZip = () => {
             setImageBlob(blob);
             const url = URL.createObjectURL(blob);
             setImageSrc(url);
+
+            createImageBitmap(blob).then((bitmap) => {
+              setImageDimensions({ width: bitmap.width, height: bitmap.height });
+            }).catch((error) => {
+              console.error("Error creating image bitmap:", error);
+            });
+
           });
         } else {
           alert('The ZIP file must contain exactly one PNG image.');
@@ -36,7 +44,7 @@ const useImportZip = () => {
       });
   };
 
-  return { imageSrc, imageBlob, importZip };
+  return { imageDimensions, imageSrc, imageBlob, importZip };
 };
 
 export default useImportZip;

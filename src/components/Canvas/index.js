@@ -23,7 +23,7 @@ import styles from './styles.module.css';
 const Canvas = () => {
   const { tool } = useContext(CanvasContext);
   const [image, setImage] = useState(new Image());
-  const { imageSrc, imageBlob, importZip } = useImportZip();
+  const { imageDimensions, imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [undoShapes, setUndoShapes] = useState([]);
@@ -169,8 +169,8 @@ const Canvas = () => {
     <div className={styles.container}>
       <ToolBox importZip={importZip} exportZip={exportZip} />
       <Stage 
-        width={500}
-        height={500}
+        width={imageDimensions.width || 500}
+        height={imageDimensions.height || 500}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
@@ -178,8 +178,8 @@ const Canvas = () => {
         {image && <Layer>
           <KonvaImage
             image={image}
-            width={500}
-            height={500}
+            width={imageDimensions.width  || 500}
+            height={imageDimensions.height || 500}
           />
         </Layer>}
         <Layer ref={drawingLayer}>
