@@ -8,5 +8,5 @@ export const TOOLS = {
 
 export const STARTING_CIRCLE_RADIUS = 8;
 
-export const DEFAULT_CANVAS_WIDTH = 800;
-export const DEFAULT_CANVAS_HEIGHT = 600;
+export const DEFAULT_CANVAS_WIDTH = 690;
+export const DEFAULT_CANVAS_HEIGHT = 400;

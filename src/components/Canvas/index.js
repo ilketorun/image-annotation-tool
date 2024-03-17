@@ -24,7 +24,7 @@ import styles from './styles.module.css';
 const Canvas = () => {
   const { tool } = useContext(CanvasContext);
   const [image, setImage] = useState(new Image());
-  const { imageDimensions, imagePositions, imageSrc, imageBlob, importZip } = useImportZip();
+  const { canvasSize, imageDimensions, imagePositions, imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [undoShapes, setUndoShapes] = useState([]);
@@ -180,7 +180,7 @@ const Canvas = () => {
 
   useEffect(() => {   
     if (!imageSrc) {
-      image.src = createBlackImageDataUrl(DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT)
+      image.src = createBlackImageDataUrl(canvasSize.width, canvasSize.height)
     } else {
       image.src = imageSrc;
     }
@@ -190,8 +190,8 @@ const Canvas = () => {
     <div className={styles.container}>
       <ToolBox importZip={importZip} exportZip={exportZip} />
       <Stage 
-        width={DEFAULT_CANVAS_WIDTH}
-        height={DEFAULT_CANVAS_HEIGHT}
+        width={canvasSize.width}
+        height={canvasSize.height}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
@@ -200,22 +200,22 @@ const Canvas = () => {
           <Rect
             x={0}
             y={0}
-            width={DEFAULT_CANVAS_WIDTH}
-            height={DEFAULT_CANVAS_HEIGHT}
+            width={canvasSize.width}
+            height={canvasSize.height}
             fill="black"
           />
           <KonvaImage
             image={image}
-            width={imageDimensions.width  || DEFAULT_CANVAS_WIDTH}
-            height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
+            width={imageDimensions.width  || canvasSize.width || DEFAULT_CANVAS_HEIGHT}
+            height={imageDimensions.height || canvasSize.height || DEFAULT_CANVAS_WIDTH}
             x={imagePositions.x || 0}
             y={imagePositions.y || 0}
           />
         </Layer>}
         <Layer 
           ref={drawingLayer}
-          width={imageDimensions.width || DEFAULT_CANVAS_WIDTH}
-          height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
+          width={imageDimensions.width || canvasSize.width || DEFAULT_CANVAS_HEIGHT}
+          height={imageDimensions.height || canvasSize.height || DEFAULT_CANVAS_WIDTH}
         >
           {isDrawing.current && lines.map((line, i) => (
               <Line

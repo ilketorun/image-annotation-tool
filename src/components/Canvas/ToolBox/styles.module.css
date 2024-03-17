@@ -24,3 +24,22 @@
   flex-direction: row !important;
   align-items: center !important;
 }
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: row;  
+    flex-wrap: wrap;
+    width: 93vw;
+    justify-content: center;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .container {
+    flex-direction: row;
+    width: 93vw;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

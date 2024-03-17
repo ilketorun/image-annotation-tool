@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import JSZip from 'jszip';
 import { DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '@constants';
 
@@ -7,6 +7,25 @@ const useImportZip = () => {
   const [imageBlob, setImageBlob] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const [imagePositions, setImagePositions] = useState({ x: 0, y: 0 });
+  const [canvasSize, setCanvasSize] = useState({
+    width: DEFAULT_CANVAS_WIDTH,
+    height: DEFAULT_CANVAS_HEIGHT,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      const { innerWidth, innerHeight } = window;
+      setCanvasSize({
+        width: Math.min(DEFAULT_CANVAS_WIDTH, innerWidth * 0.93),
+        height: Math.min(DEFAULT_CANVAS_HEIGHT, innerHeight * 0.93),
+      });
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const importZip = (event) => {
     const file = event.target.files[0];
@@ -29,19 +48,19 @@ const useImportZip = () => {
             createImageBitmap(blob).then((bitmap) => {
               const dimensions = { width: bitmap.width, height: bitmap.height };                
               const aspectRatio = dimensions.width / dimensions.height;
-              let width = DEFAULT_CANVAS_WIDTH;
-              let height = DEFAULT_CANVAS_HEIGHT;
+              let width = canvasSize.width;
+              let height = canvasSize.height;
               
               if (dimensions.width > dimensions.height) {
-                width = DEFAULT_CANVAS_WIDTH;
+                width = canvasSize.width;
                 height = width / aspectRatio;
               } else {
-                height = DEFAULT_CANVAS_HEIGHT;
+                height = canvasSize.height;
                 width = height * aspectRatio;
               }
               setImageDimensions({ width, height });      
-              const imageX = (DEFAULT_CANVAS_WIDTH - width) / 2;
-              const imageY = (DEFAULT_CANVAS_HEIGHT - height) / 2;
+              const imageX = (canvasSize.width - width) / 2;
+              const imageY = (canvasSize.height - height) / 2;
               setImagePositions({ x: imageX, y: imageY });
             }).catch((error) => {
               console.error("Error creating image bitmap:", error);
@@ -61,7 +80,7 @@ const useImportZip = () => {
       });
   };
 
-  return { imageDimensions, imagePositions, imageSrc, imageBlob, importZip };
+  return { canvasSize, imageDimensions, imagePositions, imageSrc, imageBlob, importZip };
 };
 
 export default useImportZip;
