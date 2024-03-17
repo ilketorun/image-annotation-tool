@@ -7,10 +7,8 @@ import { CanvasContext } from "@contexts";
 import Export from "./Export";
 import Import from "./Import";
 import Pen from "./Pen";
-import Brush from "./Brush";
 import Undo from "./Undo";
 import Redo from "./Redo";
-import Eraser from "./Eraser";
 
 import styles from './styles.module.css';
 
@@ -26,8 +24,6 @@ const ToolBox = ({ importZip }) => {
       <Import importZip={importZip} />
       <Export/>
       <Pen />
-      <Brush />
-      <Eraser />
       <Undo />
       <Redo />
     </Radio.Group>

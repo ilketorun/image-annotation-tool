@@ -2,8 +2,11 @@ export const TOOLS = {
   IMPORT: 'import',
   EXPORT: 'export',
   PEN: 'pen',
-  BRUSH: 'brush',
-  ERASER: 'eraser',
   UNDO: 'undo',
   REDO: 'redo',
 };
+
+export const STARTING_CIRCLE_RADIUS = 8;
+
+export const DEFAULT_CANVAS_WIDTH = 800;
+export const DEFAULT_CANVAS_HEIGHT = 600;

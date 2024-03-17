@@ -1,3 +1,13 @@
-import { TOOLS } from "./canvas.constants";
+import { 
+  TOOLS, 
+  STARTING_CIRCLE_RADIUS, 
+  DEFAULT_CANVAS_WIDTH, 
+  DEFAULT_CANVAS_HEIGHT
+} from "./canvas.constants";
 
-export { TOOLS };
+export { 
+  TOOLS, 
+  STARTING_CIRCLE_RADIUS,
+  DEFAULT_CANVAS_WIDTH, 
+  DEFAULT_CANVAS_HEIGHT
+};

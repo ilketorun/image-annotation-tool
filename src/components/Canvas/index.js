@@ -14,7 +14,7 @@ import { saveAs } from 'file-saver';
 import { CanvasContext } from '@contexts';
 import { useImportZip } from '@hooks';
 import { createBlackImageDataUrl, dataURLtoBlob } from '@utils';
-import { TOOLS } from '@constants';
+import { TOOLS, STARTING_CIRCLE_RADIUS, DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '@constants';
 
 import ToolBox from './ToolBox';
 
@@ -32,7 +32,6 @@ const Canvas = () => {
   const isDrawing = useRef(false);
   const startingPoint = useRef({ x:-1, y: -1 });
   const drawingLayer = useRef();
-  const startingCircleRadius = 8;
 
   const exportZip = () => {
     const zip = new JSZip();
@@ -55,7 +54,6 @@ const Canvas = () => {
 
   const handleMouseDown = (e) => {
     if(tool === TOOLS.PEN) {
-      setUndoShapes([...shapes]);
       isDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
       setLines([...lines, { tool, points: [pos.x, pos.y] }]);
@@ -69,21 +67,23 @@ const Canvas = () => {
     if (!isDrawing.current) return;
 
     const pos = e.target.getStage().getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([pos.x, pos.y]);
 
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());  
-    
-    const distance = Math.sqrt(
-      Math.pow(pos.x - startingPoint.x, 2) + Math.pow(pos.y - startingPoint.y, 2)
-    );
+    if (tool === TOOLS.PEN) {
+      let lastLine = lines[lines.length - 1];
+      lastLine.points = lastLine.points.concat([pos.x, pos.y]);
 
-    if (distance <= startingCircleRadius) {
-      isMouseWithinStartingCircle.current = true;
-    } else {
-      isMouseWithinStartingCircle.current = false;
+      lines.splice(lines.length - 1, 1, lastLine);
+      setLines(lines.concat());
+      
+      const distance = Math.sqrt(
+        Math.pow(pos.x - startingPoint.x, 2) + Math.pow(pos.y - startingPoint.y, 2)
+      );
+
+      if (distance <= STARTING_CIRCLE_RADIUS) {
+        isMouseWithinStartingCircle.current = true;
+      } else {
+        isMouseWithinStartingCircle.current = false;
+      }
     }
   };
 
@@ -97,18 +97,21 @@ const Canvas = () => {
       Math.pow(pos.x - startingPoint.x, 2) + Math.pow(pos.y - startingPoint.y, 2)
     );
 
-    if (distance <= startingCircleRadius) {
+    if (distance <= STARTING_CIRCLE_RADIUS) {
       isMouseWithinStartingCircle.current = true;
       const lastShape = lines[lines.length - 1];
       if (tool === TOOLS.PEN) {
         const firstPoint = lastShape.points.slice(0, 2); // Get the first point
         lastShape.points = [...lastShape.points, ...firstPoint]; // Close the shape by adding the first point at the end
         setLines([]);
+        setUndoShapes([...shapes]);
         setShapes([...shapes, ...lines.slice(0, -1), lastShape]);
       }
     } else {
       isMouseWithinStartingCircle.current = false;
-      setLines([])
+      if (tool === TOOLS.PEN) {
+        setLines([]);
+      }
     }
     
     startingPoint.x = -1;
@@ -126,7 +129,7 @@ const Canvas = () => {
         setUndoShapes([...shapes]);
         setShapes([...redoShapes]);
         break;
-        
+
       case TOOLS.EXPORT:
         exportZip();
         break;
@@ -159,7 +162,7 @@ const Canvas = () => {
 
   useEffect(() => {   
     if (!imageSrc) {
-      image.src = createBlackImageDataUrl(100, 100)
+      image.src = createBlackImageDataUrl(DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT)
     } else {
       image.src = imageSrc;
     }
@@ -169,8 +172,8 @@ const Canvas = () => {
     <div className={styles.container}>
       <ToolBox importZip={importZip} exportZip={exportZip} />
       <Stage 
-        width={imageDimensions.width || 500}
-        height={imageDimensions.height || 500}
+        width={imageDimensions.width || DEFAULT_CANVAS_WIDTH}
+        height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
@@ -178,8 +181,8 @@ const Canvas = () => {
         {image && <Layer>
           <KonvaImage
             image={image}
-            width={imageDimensions.width  || 500}
-            height={imageDimensions.height || 500}
+            width={imageDimensions.width  || DEFAULT_CANVAS_WIDTH}
+            height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
           />
         </Layer>}
         <Layer ref={drawingLayer}>
@@ -192,9 +195,7 @@ const Canvas = () => {
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"
-                globalCompositeOperation={
-                  line.tool === TOOLS.ERASER ? 'destination-out' : 'source-over'
-                }
+                globalCompositeOperation={line.tool === TOOLS.PEN ? 'source-over' : ''}
                 opacity={0.6}
               />
           ))}
