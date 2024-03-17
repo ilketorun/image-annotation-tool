@@ -6,7 +6,8 @@ import {
   Shape, 
   Line,  
   Circle,
-  Image as KonvaImage
+  Image as KonvaImage,
+  Rect
 } from 'react-konva';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -23,7 +24,7 @@ import styles from './styles.module.css';
 const Canvas = () => {
   const { tool } = useContext(CanvasContext);
   const [image, setImage] = useState(new Image());
-  const { imageDimensions, imageSrc, imageBlob, importZip } = useImportZip();
+  const { imageDimensions, imagePositions, imageSrc, imageBlob, importZip } = useImportZip();
   const [lines, setLines] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [undoShapes, setUndoShapes] = useState([]);
@@ -34,21 +35,38 @@ const Canvas = () => {
   const drawingLayer = useRef();
 
   const exportZip = () => {
+    if (!imageBlob) return;
+
     const zip = new JSZip();
     const imgFolder = zip.folder("images");
 
-    const dataURL = drawingLayer.current.toDataURL({
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Set canvas size to match the clipping dimensions
+    tempCanvas.width = imageDimensions.width;
+    tempCanvas.height = imageDimensions.height;
+
+    const img = new Image();
+    img.onload = () => {
+        // Draw the image onto the temporary canvas, clipped to the desired area
+        tempCtx.drawImage(img, -imagePositions.x, -imagePositions.y);
+        
+        // Convert the temporary canvas to a data URL or directly to a Blob
+        tempCanvas.toBlob((blob) => {
+            const maskBlob = blob; // This is now the clipped mask blob
+            imgFolder.file("mask.png", maskBlob, { binary: true });
+            imgFolder.file("original_image.png", imageBlob, { binary: true });
+
+            zip.generateAsync({ type: "blob" })
+                .then(function(content) {
+                    saveAs(content, "images.zip");
+                });
+        }, 'image/png');
+    };
+    img.src = drawingLayer.current.toDataURL({
       pixelRatio: 1,
       mimeType: "image/png",
-    },);
-
-    const maskBlob = dataURLtoBlob(dataURL);
-    imgFolder.file("mask.png", maskBlob, { binary: true });
-    imgFolder.file("original_image.png", imageBlob, { binary: true });
-
-    zip.generateAsync({ type: "blob" })
-    .then(function(content) {
-      saveAs(content, "images.zip");
     });
   };
 
@@ -172,20 +190,33 @@ const Canvas = () => {
     <div className={styles.container}>
       <ToolBox importZip={importZip} exportZip={exportZip} />
       <Stage 
-        width={imageDimensions.width || DEFAULT_CANVAS_WIDTH}
-        height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
+        width={DEFAULT_CANVAS_WIDTH}
+        height={DEFAULT_CANVAS_HEIGHT}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
       >
         {image && <Layer>
+          <Rect
+            x={0}
+            y={0}
+            width={DEFAULT_CANVAS_WIDTH}
+            height={DEFAULT_CANVAS_HEIGHT}
+            fill="black"
+          />
           <KonvaImage
             image={image}
             width={imageDimensions.width  || DEFAULT_CANVAS_WIDTH}
             height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
+            x={imagePositions.x || 0}
+            y={imagePositions.y || 0}
           />
         </Layer>}
-        <Layer ref={drawingLayer}>
+        <Layer 
+          ref={drawingLayer}
+          width={imageDimensions.width || DEFAULT_CANVAS_WIDTH}
+          height={imageDimensions.height || DEFAULT_CANVAS_HEIGHT}
+        >
           {isDrawing.current && lines.map((line, i) => (
               <Line
                 key={i}

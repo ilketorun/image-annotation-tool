@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import JSZip from 'jszip';
+import { DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '@constants';
 
 const useImportZip = () => {
   const [imageSrc, setImageSrc] = useState(null);
   const [imageBlob, setImageBlob] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [imagePositions, setImagePositions] = useState({ x: 0, y: 0 });
 
   const importZip = (event) => {
     const file = event.target.files[0];
@@ -25,7 +27,22 @@ const useImportZip = () => {
             setImageSrc(url);
 
             createImageBitmap(blob).then((bitmap) => {
-              setImageDimensions({ width: bitmap.width, height: bitmap.height });
+              const dimensions = { width: bitmap.width, height: bitmap.height };                
+              const aspectRatio = dimensions.width / dimensions.height;
+              let width = DEFAULT_CANVAS_WIDTH;
+              let height = DEFAULT_CANVAS_HEIGHT;
+              
+              if (dimensions.width > dimensions.height) {
+                width = DEFAULT_CANVAS_WIDTH;
+                height = width / aspectRatio;
+              } else {
+                height = DEFAULT_CANVAS_HEIGHT;
+                width = height * aspectRatio;
+              }
+              setImageDimensions({ width, height });      
+              const imageX = (DEFAULT_CANVAS_WIDTH - width) / 2;
+              const imageY = (DEFAULT_CANVAS_HEIGHT - height) / 2;
+              setImagePositions({ x: imageX, y: imageY });
             }).catch((error) => {
               console.error("Error creating image bitmap:", error);
             });
@@ -44,7 +61,7 @@ const useImportZip = () => {
       });
   };
 
-  return { imageDimensions, imageSrc, imageBlob, importZip };
+  return { imageDimensions, imagePositions, imageSrc, imageBlob, importZip };
 };
 
 export default useImportZip;
